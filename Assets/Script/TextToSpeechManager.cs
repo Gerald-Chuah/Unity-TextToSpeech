@@ -93,7 +93,7 @@ namespace TextToSpeech
 
         private string _language;
         private string _source;
-        private string _audioFormat;
+        private string _audioCodecs;
         private string _url = "http://api.voicerss.org/?key={0}&hl={1}&src={2}&c={3}";
 
         private string _currentLanguage
@@ -105,16 +105,16 @@ namespace TextToSpeech
             }
         }
 
-        private string _currentAudioFormat
+        private string _currentAudioCodecs
         {
             get
             {
-                _audioFormat = TextToSpeechOption.audioCodecs[(int)selectedAudioCodecs];
-                return _audioFormat;
+                _audioCodecs = TextToSpeechOption.audioCodecs[(int)selectedAudioCodecs];
+                return _audioCodecs;
             }
         }
 
-        public AudioType GetAudioType(AudioCodecs audioCodecs)
+        private AudioType GetAudioType(AudioCodecs audioCodecs)
         {
             AudioType type = AudioType.OGGVORBIS;
             switch (audioCodecs)
@@ -143,9 +143,43 @@ namespace TextToSpeech
             return type;
         }
 
+        private AudioType GetAudioTypeWithIndex(int index)
+        {
+            AudioType type = AudioType.OGGVORBIS;
+            switch (index)
+            {
+                case 0:
+                    type = AudioType.MPEG;
+                    break;
+
+                case 1:
+                    type = AudioType.WAV;
+                    break;
+
+                case 2:
+                    type = AudioType.ACC;
+                    break;
+
+                case 3:
+                    type = AudioType.OGGVORBIS;
+                    break;
+
+                default:
+                    type = AudioType.OGGVORBIS;
+                    break;
+            }
+
+            return type;
+        }
+
         public AudioType GetCurrentAudioType()
         {
             return GetAudioType(selectedAudioCodecs);
+        }
+
+        public AudioType GetCurrentAudioTypeWithIndex(int index)
+        {
+            return GetAudioTypeWithIndex(index);
         }
 
         public string GetTextToSpeechAudio(string content,Language language = Language.English_UnitedStates, AudioCodecs audioCodecs = AudioCodecs.OGG)
@@ -153,14 +187,14 @@ namespace TextToSpeech
             selectedLanguage = language;
             selectedAudioCodecs = audioCodecs;
 
-            return SetupAudioURL(content, _currentLanguage, _currentAudioFormat);
+            return SetupAudioURL(content, _currentLanguage, _currentAudioCodecs);
         }
 
         //Language index Default = 10 (English-US) , Audio Format Index Default = 3(OGG)
-        public string GetTextToSpeechAudioWithIndex(string content, int languageIndex =10, int audioformatIndex =3)
+        public string GetTextToSpeechAudioWithIndex(string content, int languageIndex =10, int audioCodecsIndex =3)
         {
             string language = TextToSpeechOption.language[languageIndex];
-            string audioformat= TextToSpeechOption.audioCodecs[audioformatIndex];
+            string audioformat= TextToSpeechOption.audioCodecs[audioCodecsIndex];
 
             return SetupAudioURL(content, language, audioformat);
         }

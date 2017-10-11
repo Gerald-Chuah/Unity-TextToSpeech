@@ -12,7 +12,7 @@ public class PlayTextToSpeech : MonoBehaviour
     [SerializeField] Button _button;
     [SerializeField] InputField _inputField;
     [SerializeField] Dropdown _languageDropDownList;
-    [SerializeField] Dropdown _audioFormatDropDownList;
+    [SerializeField] Dropdown _audioCodecsDropDownList;
 
     private string text;
     
@@ -35,9 +35,9 @@ public class PlayTextToSpeech : MonoBehaviour
 
         foreach (string name in Enum.GetNames((typeof(AudioCodecs))))
         {
-            _audioFormatDropDownList.options.Add(new Dropdown.OptionData(name));
+            _audioCodecsDropDownList.options.Add(new Dropdown.OptionData(name));
         }
-        _audioFormatDropDownList.value = 3;
+        _audioCodecsDropDownList.value = 3;
     }
 
     public void PlayVoice()
@@ -50,11 +50,13 @@ public class PlayTextToSpeech : MonoBehaviour
         OnGetVoiceStart();
 
         text = _inputField.text;
-        string url = manager.GetTextToSpeechAudioWithIndex(text, _languageDropDownList.value, _audioFormatDropDownList.value);
+        int languageIndex = _languageDropDownList.value;
+        int audioCodecsIndex = _audioCodecsDropDownList.value;
+        string url = manager.GetTextToSpeechAudioWithIndex(text, languageIndex, audioCodecsIndex);
         WWW www = new WWW(url);
         yield return www;
-        AudioClip clip = www.GetAudioClip(false, false, manager.GetCurrentAudioType());
-        if (clip.length > 0)
+        AudioClip clip = www.GetAudioClip(false, false, manager.GetCurrentAudioTypeWithIndex(audioCodecsIndex));
+        if (clip.length > 0 && clip !=null)
         {
             _audioSource.clip = clip;
             _audioSource.Play();
